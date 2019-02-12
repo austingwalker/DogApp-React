@@ -1,17 +1,59 @@
 import React from "react";
-import axios from "axios";
+import API from "../Utils/API";
+import SearchForm from "../components/SearchForm";
+import Container from "../components/Container";
+import SearchResults from "../components/SearchResults";
+import Alert from "../components/Alert";
 
 class Search extends React.Component {
     state = {
-
+        search: "",
+        breeds: [],
+        results: [],
+        error: ""
     }
 
-    componentDidMount(){
-        axios.get("").then(response => console.log(response))
+    componentDidMount() {
+        API.getBaseBreedsList()
+            .then(res => this.setState({ breeds: res.data.message }))
+            .catch(err => console.log(err));
     }
-    render(){
-        return(
-            <div>Search</div>
+
+    handleInputChange = event => {
+        this.setState({ search: event.target.value })
+    }
+
+    handleFormSubmit = event => {
+        event.preventDefault();
+        API.getDogsOfBreed(this.state.search)
+            .then(res => {
+                if (res.data.status === "error") {
+                    throw new Error(res.data.message);
+                }
+                this.setState({ results: res.data.message, error: "" });
+            })
+            .catch(err => this.setState({ error: err.message }));
+    }
+
+    render() {
+        return (
+
+            <div>
+                <Container style={{ minHeight: "80%" }}>
+                    <h1 className="text-center">Search By Breed!</h1>
+                    <Alert
+                        type="danger"
+                        style={{ opacity: this.state.error ? 1 : 0, marginBottom: 10 }}
+                    >
+                        {this.state.error}
+                    </Alert>
+                    <SearchForm
+                        handleFormSubmit={this.handleFormSubmit}
+                        handleInputChange={this.handleInputChange}
+                        breeds={this.state.breeds} />
+                    <SearchResults results={this.state.results} />
+                </Container>
+            </div>
         )
     }
 }

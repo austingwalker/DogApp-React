@@ -21,7 +21,7 @@ class Discover extends Component {
 
         const newState = { ...this.state};
 
-        console.log(btnType)
+        console.log(newState)
 
 
         if (btnType === "pick") {
